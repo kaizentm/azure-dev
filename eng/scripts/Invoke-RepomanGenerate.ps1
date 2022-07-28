@@ -5,6 +5,10 @@ param(
     [switch] $WhatIf
 )
 
+if (Test-Path $ResultsFileLocation) {
+    Remove-Item $ResultsFileLocation
+}
+
 $projectsJson = repoman list --format json | Out-String
 $projects = ConvertFrom-Json $projectsJson
 
