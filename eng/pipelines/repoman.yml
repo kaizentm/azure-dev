@@ -84,8 +84,9 @@ jobs:
           if (Test-Path $repomanOutputFile) {
             $repomanContent = Get-Content $repomanOutputFile -Raw | ConvertFrom-Json
           }
+          $output = ""
           for ($j = 0; $j -lt $repomanContent.count; $j++) { 
-          $output = "### Project: **$($repomanContent[$j].metadataName)**`n"
+          $output = $output + "### Project: **$($repomanContent[$j].metadataName)**`n"
           $results = $repomanContent[$j].results
           for($i = 0; $i -lt $results.count; $i++) { 
             
@@ -113,6 +114,7 @@ jobs:
           $output
           "@
           $file = New-TemporaryFile
+          write-host "Content Temp file path $file"
           Set-Content -Path $file -Value $content
           Write-Host "##vso[task.setvariable variable=CommentBodyFile]$file"
         displayName: Set Repoman Content
