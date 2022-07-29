@@ -85,7 +85,6 @@ jobs:
             $repomanContent = Get-Content $repomanOutputFile -Raw | ConvertFrom-Json
           }
 
-          }
           $output = "### Project: **${this.manifest.metadata.name}**`n"
           for($i = 0; $i -lt $repomanContent.count; $i++) { 
               $output = $output + @"
