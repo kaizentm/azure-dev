@@ -297,7 +297,12 @@ export class GenerateCommand implements RepomanCommand {
             try {
 
                 //const output: string[] = [];
-                const output = JSON.stringify(results) 
+                const generatedResults = {
+                    metadataName:  this.manifest.metadata.name,
+                    results: results
+                }
+                
+                const output = JSON.stringify(generatedResults) 
                 //output.push(`### Project: **${this.manifest.metadata.name}**`);
 
                 // for (const result of pushedResults) {

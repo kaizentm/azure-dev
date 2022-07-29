@@ -85,18 +85,20 @@ jobs:
             $repomanContent = Get-Content $repomanOutputFile -Raw | ConvertFrom-Json
           }
 
-          $output = "### Project: **${this.manifest.metadata.name}**`n"
-          for($i = 0; $i -lt $repomanContent.count; $i++) { 
+          $output = "### Project: **${repomanContent.metadataName}**`n"
+          $results = $repomanContent.results
+          for($i = 0; $i -lt $results.count; $i++) { 
+            
               $output = $output + @"
-          #### Remote: **$($repomanContent[$i].remote)**
-          ##### Branch: **$($repomanContent[$i].branch)**
+          #### Remote: **$($results[$i].remote)**
+          ##### Branch: **$($results[$i].branch)**
 
           You can initialize this project with:
           ``````bash
-          azd init -t $($repomanContent[$i].org)/$($repomanContent[$i].repo) -b $($repomanContent[$i].branch)
+          azd init -t $($results[$i].org)/$($results[$i].repo) -b $($results[$i].branch)
           ``````
 
-          [View Changes]($($repomanContent[$i].branchUrl)) | [Compare Changes]($($repomanContent[$i].compareUrl))
+          [View Changes]($($results[$i].branchUrl)) | [Compare Changes]($($results[$i].compareUrl))
 
           ---
 
