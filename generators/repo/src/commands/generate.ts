@@ -314,7 +314,7 @@ export class GenerateCommand implements RepomanCommand {
                 }
                 
                 fileContent.push(generatedResults);
-                const output = JSON.stringify(generatedResults)
+                const output = JSON.stringify(fileContent)
                 
                 //tmp
                 console.debug(chalk.grey("RESULTS OUTPUT"))
