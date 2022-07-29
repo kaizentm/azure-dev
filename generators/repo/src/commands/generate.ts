@@ -3,6 +3,7 @@ import { IOptions } from "glob";
 import path from "path";
 import os from "os";
 import fs from "fs/promises";
+import { existsSync } from "fs";
 import ansiEscapes from "ansi-escapes";
 import chalk from "chalk";
 import { cleanDirectoryPath, copyFile, createRepoUrlFromRemote, ensureDirectoryPath, getGlobFiles, getRepoPropsFromRemote, isStringNullOrEmpty, RepoProps, writeHeader } from "../common/util";
@@ -291,7 +292,17 @@ export class GenerateCommand implements RepomanCommand {
             }
 
             const resultsFilePath = path.resolve(path.normalize(this.options.resultsFile));
-            const resultsFile = await fs.open(resultsFilePath, "a+");
+
+            let fileContent=[];
+            if(existsSync(resultsFilePath)){
+                const fileReadBuffer = await fs.readFile(resultsFilePath);
+                const fileContentJson = fileReadBuffer.toString();
+                if(fileContentJson){
+                    fileContent = JSON.parse(fileContentJson); 
+                }
+            }
+
+            const resultsFile = await fs.open(resultsFilePath, "w+");
             const resultsStream = resultsFile.createWriteStream();
 
             try {
@@ -302,6 +313,7 @@ export class GenerateCommand implements RepomanCommand {
                     results: results
                 }
                 
+                fileContent.push(generatedResults);
                 const output = JSON.stringify(generatedResults) 
                 //output.push(`### Project: **${this.manifest.metadata.name}**`);
 
@@ -325,6 +337,7 @@ export class GenerateCommand implements RepomanCommand {
                     //console.debug(chalk.grey(output.join(os.EOL)));
                     console.debug(chalk.grey(output));
                 }
+                
 
                 resultsStream.write(output, (error) => {
                     if (error) {
