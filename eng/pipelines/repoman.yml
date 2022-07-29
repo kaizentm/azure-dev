@@ -92,9 +92,9 @@ jobs:
           ##### Branch: **$($repomanContent[$i].branch)**
 
           You can initialize this project with:
-          ```bash
+          ``````bash
           azd init -t $($repomanContent[$i].org)/$($repomanContent[$i].repo) -b $($repomanContent[$i].branch)
-          ```
+          ``````
 
           [View Changes]($($repomanContent[$i].branchUrl)) | [Compare Changes]($($repomanContent[$i].compareUrl))
 
