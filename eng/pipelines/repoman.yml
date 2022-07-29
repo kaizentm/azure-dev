@@ -85,8 +85,8 @@ jobs:
             $repomanContent = Get-Content $repomanOutputFile -Raw | ConvertFrom-Json
           }
           for ($j = 0; $j -lt $repomanContent.count; $j++) { 
-            $output = "### Project: **${repomanContents[$j].metadataName}**`n"
-            $results = $repomanContents[$j].results
+            $output = "### Project: **${repomanContent[$j].metadataName}**`n"
+            $results = $repomanContent[$j].results
             for($i = 0; $i -lt $results.count; $i++) { 
               
             $output = $output + @"
