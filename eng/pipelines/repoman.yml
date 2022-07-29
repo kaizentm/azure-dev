@@ -82,15 +82,33 @@ jobs:
           $repomanContent = "No changes detected."
           $repomanOutputFile = "$([System.IO.Path]::GetTempPath())/repoman.json"
           if (Test-Path $repomanOutputFile) {
-            $repomanContent = Get-Content $repomanOutputFile -Raw
+            $repomanContent = Get-Content $repomanOutputFile -Raw | ConvertFrom-Json
           }
 
+          }
+          $output = "### Project: **${this.manifest.metadata.name}**`n"
+          for($i = 0; $i -lt $repomanContent.count; $i++) { 
+              $output = $output + @"
+          #### Remote: **$($repomanContent[$i].remote)**
+          ##### Branch: **$($repomanContent[$i].branch)**
+
+          You can initialize this project with:
+          ```bash
+          azd init -t $($repomanContent[$i].org)/$($repomanContent[$i].repo) -b $($repomanContent[$i].branch)
+          ```
+
+          [View Changes]($($repomanContent[$i].branchUrl)) | [Compare Changes]($($repomanContent[$i].compareUrl))
+
+          ---
+
+          "@
+          }
           $tag ='<!-- #comment-repoman-generate -->'
           $content = @"
           $tag
           ## Repoman Generation Results
           Repoman pushed changes to remotes for the following projects:
-          $repomanContent
+          $output
           "@
           $file = New-TemporaryFile
           Set-Content -Path $file -Value $content
