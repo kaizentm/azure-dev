@@ -1,6 +1,6 @@
 param(
     [string] $TargetBranchName,
-    [string] $ResultsFileLocation = "$([System.IO.Path]::GetTempPath())/repoman.md",
+    [string] $ResultsFileLocation = "$([System.IO.Path]::GetTempPath())/repoman.json",
     [string] $RunnerTemp = [System.IO.Path]::GetTempPath(),
     [switch] $WhatIf
 )

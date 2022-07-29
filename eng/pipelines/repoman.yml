@@ -80,7 +80,7 @@ jobs:
 
       - pwsh: |
           $repomanContent = "No changes detected."
-          $repomanOutputFile = "$([System.IO.Path]::GetTempPath())/repoman.md"
+          $repomanOutputFile = "$([System.IO.Path]::GetTempPath())/repoman.json"
           if (Test-Path $repomanOutputFile) {
             $repomanContent = Get-Content $repomanOutputFile -Raw
           }
