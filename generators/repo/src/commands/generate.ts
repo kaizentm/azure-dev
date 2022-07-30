@@ -286,9 +286,9 @@ export class GenerateCommand implements RepomanCommand {
     private writeResultsFile = async (results: RemotePushResult[]) => {
         return new Promise<void>(async (resolve, reject) => {
             const pushedResults = results.filter(r => r.hasChangesFromBase);
-
-            console.log(`writeResultsFile ->  pushedResults.length ${pushedResults.length}`)
-            if (pushedResults.length === 0 || !this.options.resultsFile) {
+            const data = pushedResults.length > 0 ? pushedResults : results
+            
+            if (!this.options.resultsFile) {
                 return resolve();
             }
 
@@ -311,7 +311,7 @@ export class GenerateCommand implements RepomanCommand {
                 //const output: string[] = [];
                 const generatedResults = {
                     metadataName:  this.manifest.metadata.name,
-                    results: results
+                    results: data
                 }
                 
                 fileContent.push(generatedResults);
