@@ -7,7 +7,7 @@ export interface RepoManifest {
     repo: {
         includeProjectAssets: boolean
         remotes: GitRemote[]
-
+        iac: IAC[]
         assets: AssetRule[]
         rewrite?: {
             patterns: string[]
@@ -35,4 +35,11 @@ export interface RepomanCommandOptions {
 
 export interface RepomanCommand {
     execute(): Promise<void>
+}
+
+export interface IAC {
+    name: string
+    path : string
+    updateRemoteUrl: boolean
+    remoteSlug?: string
 }

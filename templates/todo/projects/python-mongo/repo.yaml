@@ -7,6 +7,16 @@ metadata:
 repo:
   includeProjectAssets: true
 
+  iac: 
+    - name : bicep
+      path : ./infra/bicep
+      updateremoteurl:  false
+    
+    - name : terraform
+      path : ./infra/terraform
+      updateremoteurl: true
+      remoteslug: terraform
+      
   remotes:
     - name: azure-samples
       url: git@github.com:kaizentm/todo-python-mongo.git
