@@ -289,9 +289,10 @@ export class GenerateCommand implements RepomanCommand {
 
             console.log(`writeResultsFile ->  pushedResults.length ${pushedResults.length}`)
             if (pushedResults.length === 0 || !this.options.resultsFile) {
-                //return resolve();
+                
                 pushedResults = results.filter(r => r.hasChanges)
                 console.log(`after filter with hsa changes ${pushedResults.length}`)
+                return resolve();
             }
 
             const resultsFilePath = path.resolve(path.normalize(this.options.resultsFile));
