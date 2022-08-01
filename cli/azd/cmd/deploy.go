@@ -154,7 +154,7 @@ func (d *deployAction) Run(ctx context.Context, cmd *cobra.Command, args []strin
 			fmt.Println(deployMsg)
 			spinner := spin.NewSpinner(deployMsg)
 			spinner.Start()
-			err := deployAndReportProgress(spinner.Title)
+			err = deployAndReportProgress(spinner.Title)
 			spinner.Stop()
 
 			if err == nil {
@@ -207,5 +207,6 @@ func reportServiceDeploymentResultInteractive(svc *project.Service, sdr *project
 		builder.WriteString(fmt.Sprintf(" - Endpoint: %s\n", withLinkFormat(endpoint)))
 	}
 
-	fmt.Println(builder.String())
+	printWithStyling(builder.String())
+	fmt.Println()
 }
