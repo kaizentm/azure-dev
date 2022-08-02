@@ -43,3 +43,8 @@ export interface IAC {
     updateRemoteUrl: boolean
     remoteSlug?: string
 }
+
+export enum IACTools{
+    Bicep = "bicep",
+    Terraform = "terraform"
+}

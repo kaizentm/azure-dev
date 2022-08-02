@@ -23,6 +23,17 @@ export const getGlobFiles = async (pattern: string, globOptions: IOptions): Prom
     });
 }
 
+export const removeFolder = async (folderPath: string) => {
+    try{
+        await ensureDirectoryPath(folderPath);
+        await cleanDirectoryPath(folderPath);
+        await fs.rmdir(folderPath);
+    }
+    catch (err) {
+        console.error(chalk.red(`- ${err}`));
+    }
+}
+
 export const copyFile = async (sourcePath: string, destPath: string) => {
     try {
         const destDirectoryPath = path.dirname(destPath);

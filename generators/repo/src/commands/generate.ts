@@ -6,8 +6,8 @@ import fs from "fs/promises";
 import { existsSync } from "fs";
 import ansiEscapes from "ansi-escapes";
 import chalk from "chalk";
-import { cleanDirectoryPath, copyFile, createRepoUrlFromRemote, ensureDirectoryPath, getGlobFiles, getRepoPropsFromRemote, isStringNullOrEmpty, RepoProps, writeHeader } from "../common/util";
-import { AssetRule, GitRemote, RepomanCommand, RepomanCommandOptions, RepoManifest } from "../models";
+import { cleanDirectoryPath, copyFile, createRepoUrlFromRemote, ensureDirectoryPath, getGlobFiles, getRepoPropsFromRemote, isStringNullOrEmpty, RepoProps, writeHeader,removeFolder } from "../common/util";
+import { AssetRule, GitRemote, RepomanCommand, RepomanCommandOptions, RepoManifest, IACTools } from "../models";
 import { GitRepo } from "../tools/git";
 
 export interface GenerateCommandOptions extends RepomanCommandOptions {
@@ -76,24 +76,51 @@ export class GenerateCommand implements RepomanCommand {
         console.info(chalk.white(`Template: ${chalk.green(this.templateFile)}`));
         console.info(chalk.white(`Source: ${chalk.green(this.sourcePath)}`));
         console.info(chalk.white(`Destination: ${chalk.green(this.outputPath)}`));
-        console.info();
 
-        await ensureDirectoryPath(this.generatePath);
-        await cleanDirectoryPath(this.generatePath);
-        console.info(chalk.cyan('Repo generation started...'));
+        const baseGeneratedPath = this.generatePath;
+        const iac = this.manifest.repo.iac;
+        const infraPath="./infra";
 
-        for (const rule of this.assetRules) {
-            await this.processAssetRule(rule);
-        }
+        for(const iacConfig of iac) {
+            const assetRules = Object.assign([], this.assetRules);;
+            console.info(chalk.white(`IAC: ${chalk.green(iacConfig.name)}`));
+            console.info();  
 
-        console.info();
-        await this.rewritePaths();
-        console.info(chalk.cyan('Repo generation completed.'));
-        console.info();
+            assetRules.unshift({
+                from: iacConfig.path,
+                to: infraPath
+            });
 
-        const repo = await this.validateRepo();
-        if (this.options.update && repo) {
-            await this.updateRemotes(repo);
+            switch(iacConfig.name){
+                case IACTools.Bicep:
+                    //bicep specific customizations.
+                    break;
+                case IACTools.Terraform:
+                    this.generatePath = `${this.generatePath}-${iacConfig.name}`;
+                    break;
+            }
+
+            await ensureDirectoryPath(this.generatePath);
+            await cleanDirectoryPath(this.generatePath);
+            console.info(chalk.cyan('Repo generation started...'));
+
+            for (const rule of assetRules) {
+                await this.processAssetRule(rule);
+            }
+
+            console.info();
+            await this.rewritePaths();
+            console.info(chalk.cyan('Repo generation completed.'));
+            console.info();
+
+            const repo = await this.validateRepo();
+            if (this.options.update && repo) {
+                await this.updateRemotes(repo);
+            }    
+
+            //cleanup
+            await this.removeIACFolders(this.generatePath);
+            this.generatePath = baseGeneratedPath;
         }
     }
 
@@ -366,6 +393,15 @@ export class GenerateCommand implements RepomanCommand {
                 resultsFile.close();
                 console.info(chalk.cyan(`Push results written to '${resultsFilePath}'`));
             }
+        });
+    }
+    private removeIACFolders = async (basePath:string) => {
+        const tools = Object.values(IACTools).filter((v) => isNaN(Number(v)));
+        tools.forEach(async (tool) => {
+            const absoluteInfraBasePath = path.join(this.generatePath, "infra");
+            const absoluteInfraToolPath = path.join(absoluteInfraBasePath, tool);
+            console.info(chalk.white(`Removing tool specific infra folders ${chalk.cyan(absoluteInfraToolPath)}`));
+            await removeFolder(absoluteInfraToolPath)
         });
     }
 
