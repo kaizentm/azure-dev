@@ -7,7 +7,7 @@ import { existsSync } from "fs";
 import ansiEscapes from "ansi-escapes";
 import chalk from "chalk";
 import { cleanDirectoryPath, copyFile, createRepoUrlFromRemote, ensureDirectoryPath, getGlobFiles, getRepoPropsFromRemote, isStringNullOrEmpty, RepoProps, writeHeader,removeFolder } from "../common/util";
-import { AssetRule, GitRemote, RepomanCommand, RepomanCommandOptions, RepoManifest, IACTools } from "../models";
+import { AssetRule, GitRemote, RepomanCommand, RepomanCommandOptions, RepoManifest, IACTools,IAC } from "../models";
 import { GitRepo } from "../tools/git";
 
 export interface GenerateCommandOptions extends RepomanCommandOptions {
@@ -78,8 +78,18 @@ export class GenerateCommand implements RepomanCommand {
         console.info(chalk.white(`Destination: ${chalk.green(this.outputPath)}`));
 
         const baseGeneratedPath = this.generatePath;
-        const iac = this.manifest.repo.iac;
+        let iac : IAC[] = this.manifest.repo.iac;
         const infraPath="./infra";
+
+        if (!iac || iac.length == 0){
+            const defaultIACTool : IAC = {
+                name: "bicep",
+                path: "./infra/bicep",
+                updateRemoteUrl: true
+            }
+            iac = [];
+            iac.push(defaultIACTool)
+        }
 
         for(const iacConfig of iac) {
             const assetRules = Object.assign([], this.assetRules);;
