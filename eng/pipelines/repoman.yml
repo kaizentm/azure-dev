@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - cse_main
+      - workflow_test
   paths:
     include:
       - generators/
