@@ -15,7 +15,7 @@ foreach ($project in $projects) {
     }
 
     $projectPath = $project.projectPath
-    $templatePath = $projectPath.templatePath
+    $templatePath = $project.templatePath
 
     Write-Host @"
 repoman generate `
