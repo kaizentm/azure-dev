@@ -15,7 +15,7 @@ foreach ($project in $projects) {
     }
 
     $projectPath = $project.projectPath
-    $templatePath = $project.templatePath
+    $templatePath = $project.templatePath.Replace($projectPath, "")
 
     Write-Host @"
 repoman generate `
