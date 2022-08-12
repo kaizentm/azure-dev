@@ -17,7 +17,7 @@ repoman clean `
     -t $templatePath `
     --branch "$TargetBranchName" `
     --fail-on-clean-error 
-    
+
 "@
 
     repoman clean `

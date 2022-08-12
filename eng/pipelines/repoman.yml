@@ -117,6 +117,8 @@ jobs:
 
           Set-Content -Path $file -Value $content
           Write-Host "##vso[task.setvariable variable=CommentBodyFile]$file"
+
+          mkdir .tmp
         displayName: Set Repoman Content
         condition: >-
           and(
@@ -168,5 +170,6 @@ jobs:
           filePath: ./eng/scripts/Invoke-RepomanClean.ps1
           arguments: >-
             -TargetBranchName '$(PRNumber)'
+            -RunnerTemp './tmp'
         env:
           GH_TOKEN: $(azuresdk-github-pat)
