@@ -15,7 +15,8 @@ export interface CleanCommandOptions extends RepomanCommandOptions {
     templateFile: string
     branch: string
     source: string
-    output?: string
+    output: string
+    failOnCleanError?: boolean
 }
 
 
@@ -25,13 +26,12 @@ export class CleanCommand implements RepomanCommand {
     private sourcePath: string;
     private outputPath: string;
     constructor(private options: CleanCommandOptions) {
-        this.sourcePath = (!options.source) ? os.tmpdir() : path.resolve(path.normalize(options.source?.toString()))
-        let output : string = !options.output ? os.tmpdir() : options.output.toString();
+        this.sourcePath = path.resolve(path.normalize(options.source))
         this.templateFile = path.join(this.sourcePath, options.templateFile);
 
         try {
             this.manifest = yaml.load(this.templateFile);
-            this.outputPath = path.resolve(path.normalize(output))
+            this.outputPath = path.resolve(path.normalize(options.output))
         }
         catch (err) {
             console.error(chalk.red(`Repo template manifest not found at '${this.templateFile}'`));
@@ -45,12 +45,23 @@ export class CleanCommand implements RepomanCommand {
         if(!this.validRemotes())
           return;
 
-        this.manifest.repo.remotes.forEach(async remote => {
-           await this.deleteRemoteBranch(remote);
+        console.info(chalk.white(`Repo clean started...`));
 
-           console.info(chalk.cyan(`Branch ${this.options.branch} has been deleted from remote ${remote.url}.`));
-           console.info();
-        })  
+        this.manifest.repo.remotes.forEach(async remote => {
+            try {
+                await this.deleteRemoteBranch(remote);
+                console.info(chalk.cyan(`Branch ${this.options.branch} has been deleted from remote ${remote.url}.`));
+            }
+            catch (err){
+                console.error(chalk.red(err));
+                if (this.options.failOnCleanError) {
+                    throw err;
+                }
+            }
+        });
+        
+        console.info(chalk.white(`Repo clean completed.`));
+        console.info();
     }
     
     private deleteRemoteBranch = async (remote: GitRemote) => {
@@ -64,8 +75,8 @@ export class CleanCommand implements RepomanCommand {
         await repo.clone(repoName,remote.url);
 
         if(!await repo.remoteBranchExists(remote.url,targetBranch)){
-            console.warn(chalk.yellowBright(`Cannot delete remote branch ${targetBranch}. Branch does not exist on remote ${remote.url}`));
-            return;
+            const message = `Error deleting remote branch ${targetBranch}. Branch does not exist on remote ${remote.url}`;
+            throw message;
         }
 
         await repo.deleteRemoteBranch(repoName,targetBranch);

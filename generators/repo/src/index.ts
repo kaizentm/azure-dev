@@ -48,7 +48,8 @@ export const main = async () => {
     .requiredOption("-s, --source <source>", "The template source location", ".")
     .requiredOption("-t --templateFile <template>", "The repo template manifest location", "./repo.yaml")
     .requiredOption("-b --branch <targetBranch>", "The target branch name to be deleted")
-    .option("-o --output <output>", "The temporary output path for the template")
+    .requiredOption("-o --output <output>", "The temporary output path for the template")
+    .option("-e --fail-on-clean-error", "When set will fail on clean errors", false)
     .action(async (options: CleanCommandOptions) => {
         await new CleanCommand(options).execute();
     });

@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - main
+      - delete-pr-branch-fork
   paths:
     include:
       - generators/
@@ -156,19 +156,17 @@ jobs:
           GH_TOKEN: $(azuresdk-github-pat)
 
       - task: PowerShell@2
-        displayName: Repoman Delete Template PR Branch(s)
+        displayName: Repoman Clean PR Branch(s)
         condition: >-
           and(
             succeeded(),
-            eq(variables['Build.SourceBranch'], 'refs/heads/main')
+            eq(variables['Build.SourceBranch'], 'refs/heads/delete-pr-branch-fork')
           )
         inputs:
           pwsh: true
           targetType: filePath
-          filePath: ./eng/scripts/Remove-PRBranch.ps1
+          filePath: ./eng/scripts/Invoke-RepomanClean.ps1
           arguments: >-
-            -CommitId '$(Build.SourceVersion)'
-            -Repo "azure/azure-dev"
-            -BodyFile  "$([System.IO.Path]::GetTempPath())/repoman.json"
+            -TargetBranchName '$(PRNumber)'
         env:
           GH_TOKEN: $(azuresdk-github-pat)
