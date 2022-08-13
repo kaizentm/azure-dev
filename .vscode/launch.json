@@ -60,8 +60,8 @@
                 "-s",
                 "${workspaceFolder}/templates/todo/projects/nodejs-mongo",
                 "-o", "${workspaceFolder}/.tmp",
-                "--fail-on-clean-error",
-                "--branch", "pr-debug-test"
+                "--branch", "pr-debug-test",
+                "--https"
             ]   
           },
     ]
