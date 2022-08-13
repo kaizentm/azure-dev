@@ -16,7 +16,6 @@ repoman clean `
     -o $RunnerTemp `
     -t $templatePath `
     --branch "$TargetBranchName" `
-    --fail-on-clean-error `
     --https
 
 "@
@@ -26,7 +25,6 @@ repoman clean `
         -o $RunnerTemp `
         -t $templatePath `
         --branch $TargetBranchName `
-        --fail-on-clean-error  `
         --https
 
     if ($LASTEXITCODE) {
