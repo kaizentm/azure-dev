@@ -53,7 +53,7 @@ jobs:
         workingDirectory: generators/repo
 
       - pwsh: |
-          $PRNumber = '$(System.PullRequest.PullRequestNumber)'
+          $PRNumber = "$(System.PullRequest.PullRequestNumber)"
           if ($env:PRNUMBEROVERRIDE) {
             Write-Host "PR Number override: $($env:PRNUMBEROVERRIDE)"
             $PRNumber = "$($env:PRNUMBEROVERRIDE)"
@@ -169,7 +169,7 @@ jobs:
           targetType: filePath
           filePath: ./eng/scripts/Invoke-RepomanClean.ps1
           arguments: >-
-            -TargetBranchName '$(PRNumber)'
+            -TargetBranchName '$(TargetBranchName)'
             -RunnerTemp './tmp'
         env:
           GH_TOKEN: $(azuresdk-github-pat)
