@@ -16,6 +16,7 @@ export interface CleanCommandOptions extends RepomanCommandOptions {
     branch: string
     source: string
     output: string
+    https?: boolean
     failOnCleanError?: boolean
 }
 
@@ -49,8 +50,9 @@ export class CleanCommand implements RepomanCommand {
 
         this.manifest.repo.remotes.forEach(async remote => {
             try {
-                await this.deleteRemoteBranch(remote);
-                console.info(chalk.cyan(`Branch ${this.options.branch} has been deleted from remote ${remote.url}.`));
+                let targetRemote = this.configureRemote(remote);
+                await this.deleteRemoteBranch(targetRemote);
+                console.info(chalk.cyan(`Branch ${targetRemote.branch} has been deleted from remote ${targetRemote.url}.`));
             }
             catch (err){
                 console.error(chalk.red(err));
@@ -65,7 +67,11 @@ export class CleanCommand implements RepomanCommand {
     }
     
     private deleteRemoteBranch = async (remote: GitRemote) => {
-        const targetBranch: string = this.options.branch;
+        if(!remote.branch){
+            throw "Error Remote Branch is not specified";
+        }
+
+        const targetBranch: string = remote.branch?.toString();
         const repoName: string = this.manifest.metadata.name;
 
         await ensureDirectoryPath(this.outputPath);
@@ -81,6 +87,20 @@ export class CleanCommand implements RepomanCommand {
 
         await repo.deleteRemoteBranch(repoName,targetBranch);
     }
+
+    private configureRemote =  (remote: GitRemote): GitRemote => {
+        let targetRemote = remote;
+        targetRemote.branch = this.options.branch;
+    
+        const repoProps = getRepoPropsFromRemote(remote.url);
+        if (this.options.https && repoProps.host == 'github.com') {
+            console.info(chalk.white(`Using HTTPS URL for GitHub repo`));
+            const remoteHttpUrl = createRepoUrlFromRemote(targetRemote.url);
+            targetRemote.url =`${remoteHttpUrl}.git`
+        }
+        return targetRemote;
+    }
+   
     private validRemotes = (): Boolean => {
         if (!this.manifest.repo.remotes || this.manifest.repo.remotes.length === 0) {
             console.warn(chalk.yellowBright("Remotes manifest is missing 'remotes' configuration and is unable to push changes"));
