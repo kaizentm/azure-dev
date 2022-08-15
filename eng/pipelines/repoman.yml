@@ -53,15 +53,14 @@ jobs:
         workingDirectory: generators/repo
 
       - pwsh: |
-          $PRNumber = $Env:PR_NUMBER
-          if ($env:PRNUMBEROVERRIDE) {
-            Write-Host "PR Number override: $($env:PRNUMBEROVERRIDE)"
-            $PRNumber = "$($env:PRNUMBEROVERRIDE)"
-          }
-          Write-Host "##vso[task.setvariable variable=PRNumber]$PRNumber"
+            $PRNumber = '$(System.PullRequest.PullRequestNumber)'
+            if ($env:PRNUMBEROVERRIDE) {
+              Write-Host "PR Number override: $($env:PRNUMBEROVERRIDE)"
+              $PRNumber = "$($env:PRNUMBEROVERRIDE)"
+            }
+            Write-Host "##vso[task.setvariable variable=PRNumber]$PRNumber"
+            Write-Host "Setting PR Number: $PRNumber"
         displayName: Set PRNumber
-        env:
-          PR_NUMBER: $(System.PullRequest.PullRequestNumber)
 
       - pwsh: |
           $targetBranchName = ''
@@ -70,7 +69,28 @@ jobs:
             Write-Host "PR Build, using target branch name: $targetBranchName"
           }
           Write-Host "##vso[task.setvariable variable=TargetBranchName]$targetBranchName"
+          Write-Host "Setting TargetBranchName: $targetBranchName"
         displayName: Set TargetBranchName
+
+      # - pwsh: |
+      #     $PRNumber = $Env:PR_NUMBER
+      #     if ($env:PRNUMBEROVERRIDE) {
+      #       Write-Host "PR Number override: $($env:PRNUMBEROVERRIDE)"
+      #       $PRNumber = "$($env:PRNUMBEROVERRIDE)"
+      #     }
+      #     Write-Host "##vso[task.setvariable variable=PRNumber]$PRNumber"
+      #   displayName: Set PRNumber
+      #   env:
+      #     PR_NUMBER: $(System.PullRequest.PullRequestNumber)
+
+      # - pwsh: |
+      #     $targetBranchName = ''
+      #     if ('$(Build.Reason)' -eq 'PullRequest' -or $env:BUILDREASONOVERRIDE -eq 'PullRequest') {
+      #       $targetBranchName = "pr/$(PRNumber)"
+      #       Write-Host "PR Build, using target branch name: $targetBranchName"
+      #     }
+      #     Write-Host "##vso[task.setvariable variable=TargetBranchName]$targetBranchName"
+      #   displayName: Set TargetBranchName
 
       - task: PowerShell@2
         displayName: Generate Azure-Samples repos
