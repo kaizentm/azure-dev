@@ -19,14 +19,14 @@ foreach($pr in $closedPRs) {
         $templatePath = $project.templatePath.Replace($projectPath, "")
         Write-Host @"
 
-    repoman clean `
-        -s $projectPath `
-        -o $RunnerTemp `
-        -t $templatePath `
-        --branch $targetBranchName `
-        --https
+repoman clean `
+    -s $projectPath `
+    -o $RunnerTemp `
+    -t $templatePath `
+    --branch $targetBranchName `
+    --https
 
-    "@
+"@
 
         repoman clean `
             -s $projectPath `
