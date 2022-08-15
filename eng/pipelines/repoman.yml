@@ -170,7 +170,7 @@ jobs:
           filePath: ./eng/scripts/Invoke-RepomanClean.ps1
           arguments: >-
             -CommitId '$(Build.SourceVersion)'
-            -Repo "azure/azure-dev"
+            -Repo "kaizentm/azure-dev"
             -RunnerTemp './tmp'
         env:
           GH_TOKEN: $(azuresdk-github-pat)
