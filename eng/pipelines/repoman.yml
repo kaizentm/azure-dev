@@ -14,7 +14,7 @@ pr:
       - generators/
       - templates/
       - eng/pipelines/repoman.yml
-
+#simple change
 variables:
   - template: /eng/pipelines/templates/variables/globals.yml
 
