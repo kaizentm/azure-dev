@@ -4,25 +4,20 @@ param(
     [string] $RunnerTemp = [System.IO.Path]::GetTempPath()
 )
 
-$PRNumber = gh api "/repos/$Repo/commits/$CommitId/pulls"  | jq -r '.[].number'
-$targetBranchName =  "pr/$PRNumber"
+$pulls = ConvertFrom-Json (gh api "/repos/$Repo/commits/$CommitId/pulls" )
+$closedPRs = $pulls.Where({ $_.state -eq 'closed' }) 
 
-$projectsJson = repoman list --format json | Out-String
-$projects = ConvertFrom-Json $projectsJson
+foreach($pr in $closedPRs) {
+    $PRNumber = $pr.number
+    $targetBranchName =  "pr/$PRNumber"
 
-foreach ($project in $projects) {
-    $projectPath = $project.projectPath
-    $templatePath = $project.templatePath.Replace($projectPath, "")
-    Write-Host @"
+    $projectsJson = repoman list --format json | Out-String
+    $projects = ConvertFrom-Json $projectsJson
 
-repoman clean `
-    -s $projectPath `
-    -o $RunnerTemp `
-    -t $templatePath `
-    --branch $targetBranchName `
-    --https
-
-"@
+    foreach ($project in $projects) {
+        $projectPath = $project.projectPath
+        $templatePath = $project.templatePath.Replace($projectPath, "")
+        Write-Host @"
 
     repoman clean `
         -s $projectPath `
@@ -31,8 +26,18 @@ repoman clean `
         --branch $targetBranchName `
         --https
 
-    if ($LASTEXITCODE) {
-        Write-Error "Error running repoman clean. Exit code: $LASTEXITCODE"
-        exit $LASTEXITCODE
+    "@
+
+        repoman clean `
+            -s $projectPath `
+            -o $RunnerTemp `
+            -t $templatePath `
+            --branch $targetBranchName `
+            --https
+
+        if ($LASTEXITCODE) {
+            Write-Error "Error running repoman clean. Exit code: $LASTEXITCODE"
+            exit $LASTEXITCODE
+        }
     }
 }
