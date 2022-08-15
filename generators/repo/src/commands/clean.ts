@@ -81,7 +81,7 @@ export class CleanCommand implements RepomanCommand {
         await repo.clone(repoName,remote.url);
 
         if(!await repo.remoteBranchExists(remote.url,targetBranch)){
-            const message = `Error deleting remote branch ${targetBranch}. Branch does not exist on remote ${remote.url}`;
+            const message = `Cannot delete remote branch ${targetBranch}. Branch does not exist on remote ${remote.url}`;
             throw message;
         }
 
