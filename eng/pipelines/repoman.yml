@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - delete-pr-branch-fork
+      - main
   paths:
     include:
       - generators/
@@ -14,7 +14,7 @@ pr:
       - generators/
       - templates/
       - eng/pipelines/repoman.yml
-#simple change
+
 variables:
   - template: /eng/pipelines/templates/variables/globals.yml
 
@@ -22,7 +22,7 @@ jobs:
   - job: Generate_Repos
     pool:
       name: azsdk-pool-mms-ubuntu-2004-general
-      #vmImage: MMSUbuntu20.04
+      vmImage: MMSUbuntu20.04
 
     steps:
       - checkout: self
@@ -32,10 +32,10 @@ jobs:
           versionSpec: 16
 
       - pwsh: |
-          git config --global user.name "$(azuresdk-github-user)"
-          git config --global user.email "$(azuresdk-github-email)"
+          git config --global user.name "azure-sdk"
+          git config --global user.email "azuresdk@microsoft.com"
           Set-Content `
-            -Value "https://$(azuresdk-github-user):$(azuresdk-github-pat)@github.com" `
+            -Value "https://azure-sdk:$(azuresdk-github-pat)@github.com" `
             -Path ~/.git-credentials
           git config --global credential.helper "store"
         displayName: Set git credentials
@@ -53,12 +53,12 @@ jobs:
         workingDirectory: generators/repo
 
       - pwsh: |
-            $PRNumber = '$(System.PullRequest.PullRequestNumber)'
-            if ($env:PRNUMBEROVERRIDE) {
-              Write-Host "PR Number override: $($env:PRNUMBEROVERRIDE)"
-              $PRNumber = "$($env:PRNUMBEROVERRIDE)"
-            }
-            Write-Host "##vso[task.setvariable variable=PRNumber]$PRNumber"
+          $PRNumber = '$(System.PullRequest.PullRequestNumber)'
+          if ($env:PRNUMBEROVERRIDE) {
+            Write-Host "PR Number override: $($env:PRNUMBEROVERRIDE)"
+            $PRNumber = "$($env:PRNUMBEROVERRIDE)"
+          }
+          Write-Host "##vso[task.setvariable variable=PRNumber]$PRNumber"
         displayName: Set PRNumber
 
       - pwsh: |
@@ -116,7 +116,7 @@ jobs:
           targetType: filePath
           filePath: ./eng/scripts/Update-PRComment.ps1
           arguments: >-
-            -Repo 'kaizentm/azure-dev'
+            -Repo 'azure/azure-dev'
             -PRNumber '$(PRNumber)'
             -BodyFile '$(CommentBodyFile)'
             -Tag '<!-- #comment-repoman-generate -->'
@@ -128,7 +128,7 @@ jobs:
         condition: >-
           and(
             succeeded(),
-            eq(variables['Build.SourceBranch'], 'refs/heads/delete-pr-branch-fork')
+            eq(variables['Build.SourceBranch'], 'refs/heads/main')
           )
         inputs:
           pwsh: true
@@ -136,7 +136,7 @@ jobs:
           filePath: ./eng/scripts/Invoke-RepomanClean.ps1
           arguments: >-
             -CommitId '$(Build.SourceVersion)'
-            -Repo "kaizentm/azure-dev"
+            -Repo "azure/azure-dev"
             -RunnerTemp './tmp'
         env:
           GH_TOKEN: $(azuresdk-github-pat)
