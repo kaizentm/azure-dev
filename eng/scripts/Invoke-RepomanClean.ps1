@@ -15,7 +15,7 @@ repoman clean `
     -s $projectPath `
     -o $RunnerTemp `
     -t $templatePath `
-    --branch "$TargetBranchName" `
+    --branch $TargetBranchName `
     --https
 
 "@
