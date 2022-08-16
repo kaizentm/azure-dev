@@ -1,15 +1,9 @@
 import yaml from "yamljs";
-import { IOptions } from "glob";
 import path from "path";
-import os from "os";
-import fs from "fs/promises";
-import { existsSync } from "fs";
-import ansiEscapes from "ansi-escapes";
 import chalk from "chalk";
-import { cleanDirectoryPath, copyFile, createRepoUrlFromRemote, ensureDirectoryPath, getGlobFiles, getRepoPropsFromRemote, isStringNullOrEmpty, RepoProps, writeHeader } from "../common/util";
-import { AssetRule, GitRemote, RepomanCommand, RepomanCommandOptions, RepoManifest } from "../models";
+import { cleanDirectoryPath, createRepoUrlFromRemote, ensureDirectoryPath, getRepoPropsFromRemote, writeHeader } from "../common/util";
+import { GitRemote, RepomanCommand, RepomanCommandOptions, RepoManifest } from "../models";
 import { GitRepo } from "../tools/git";
-
 
 export interface CleanCommandOptions extends RepomanCommandOptions {
     templateFile: string
@@ -19,7 +13,6 @@ export interface CleanCommandOptions extends RepomanCommandOptions {
     https?: boolean
     failOnCleanError?: boolean
 }
-
 
 export class CleanCommand implements RepomanCommand {
     private templateFile: string;

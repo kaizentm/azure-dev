@@ -3,7 +3,6 @@ param(
 )
 
 $repomanOutputFile = Join-Path -Path $repomanOutputFolder -ChildPath 'repoman.json'
-
 $repomanContent = "No changes detected."
 
 if (Test-Path $repomanOutputFile) {
@@ -13,10 +12,9 @@ if (Test-Path $repomanOutputFile) {
 $output = $repomanContent
 
 if ($repomanContent -ne "No changes detected." ) {
-$output = ""
+  $output = ""
 
   foreach($project in $repomanContent){
-    
     $output = $output + "### Project: **$($project.metadataName)**`n"
     $results = $project.results
 
