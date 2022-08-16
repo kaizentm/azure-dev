@@ -37,3 +37,9 @@ bin/
 node_modules/
 test-results/
 playwright-report/
+
+# terraform .tfstate files
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.terraform.lock*
