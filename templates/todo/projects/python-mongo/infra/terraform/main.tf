@@ -38,7 +38,7 @@ module "applicationinsights" {
 # ------------------------------------------------------------------------------------------------------
 
 resource "azurecaf_name" "kv_name" {
-  name          = random_string.resource_token.result
+  name          = "vv${random_string.resource_token.result}" #revert me
   resource_type = "azurerm_key_vault"
   random_length = 0
   clean_input   = true
@@ -64,6 +64,7 @@ resource "azurerm_key_vault_access_policy" "app" {
     "Get",
     "Set",
     "List",
+    "Delete",
   ]
 }
 
@@ -76,6 +77,7 @@ resource "azurerm_key_vault_access_policy" "user" {
     "Get",
     "Set",
     "List",
+    "Delete",
   ]
 }
 
@@ -119,6 +121,8 @@ resource "azurerm_linux_web_app" "web" {
   resource_group_name = azurerm_resource_group.rg.name
   service_plan_id     = azurerm_service_plan.plan.id
   https_only          = true
+  tags                = { azd-env-name : var.env_name, azd-service-name : "web" }
+
   site_config {
     #linux_fx_version = "NODE|16-lts"
     always_on        = true
@@ -132,7 +136,20 @@ resource "azurerm_linux_web_app" "web" {
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.applicationinsights.APPLICATIONINSIGHTS_CONNECTION_STRING
   }
 
-  tags = { azd-env-name : var.env_name, azd-service-name : "web" }
+  logs {
+    application_logs {
+      file_system_level = "Verbose"
+    }
+    detailed_error_messages = true
+    failed_request_tracing  = true
+    http_logs {
+      file_system {
+        retention_in_days = 1
+        retention_in_mb   = 35
+      }
+    }
+  }
+
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -144,17 +161,24 @@ resource "azurecaf_name" "appi_name" {
   random_length = 0
   clean_input   = true
 }
+
+locals {
+  api_command_line = "gunicorn --workers 4 --threads 2 --timeout 60 --access-logfile \"-\" --error-logfile \"-\" --bind=0.0.0.0:8000 -k uvicorn.workers.UvicornWorker todo.app:app"
+}
+
 resource "azurerm_linux_web_app" "api" {
   name                = azurecaf_name.appi_name.result
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   service_plan_id     = azurerm_service_plan.plan.id
   https_only          = true
+  tags                = { azd-env-name : var.env_name, "azd-service-name" : "api" }
+
   site_config {
     #linux_fx_version = "PYTHON|3.8"
     always_on        = true
     ftps_state       = "FtpsOnly"
-    app_command_line = "gunicorn --workers 4 --threads 2 --timeout 60 --access-logfile  -  --error-logfile  -  --bind=0.0.0.0:8000 -k uvicorn.workers.UvicornWorker todo.app:app"
+    app_command_line = local.api_command_line
   }
 
   identity {
@@ -168,8 +192,19 @@ resource "azurerm_linux_web_app" "api" {
     "AZURE_KEY_VAULT_ENDPOINT"              = azurerm_key_vault.kv.vault_uri
     "APPLICATIONINSIGHTS_CONNECTION_STRING" = module.applicationinsights.APPLICATIONINSIGHTS_CONNECTION_STRING
   }
-
-  tags = { azd-env-name : var.env_name, "azd-service-name" : "api" }
+  logs {
+    application_logs {
+      file_system_level = "Verbose"
+    }
+    detailed_error_messages = true
+    failed_request_tracing  = true
+    http_logs {
+      file_system {
+        retention_in_days = 1
+        retention_in_mb   = 35
+      }
+    }
+  }
 }
 
 # ------------------------------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ variable "workspace_id" {
 variable "tags" {
   description = "A list of tags used for deployed services."
   type        = map(any)
-  default = { "azd-env-name" : "env_name" }
+  default     = { "azd-env-name" : "env_name" }
 }
 
 variable "resource_token" {
