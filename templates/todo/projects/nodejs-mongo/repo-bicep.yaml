@@ -9,7 +9,7 @@ repo:
 
   remotes:
     - name: azure-samples
-      url: git@github.com:Azure-Samples/todo-nodejs-mongo.git
+      url: git@github.com:kaizentm/todo-nodejs-mongo.git
 
   rewrite:
     patterns:
@@ -24,6 +24,12 @@ repo:
         - "repo-*.y[a]ml"
         - "infra/**/*"
         - "azure-*.y[a]ml"
+
+    # Rule for infra Path Rewrite Only
+    - from: ../../../../../common/infra/bicep
+      to: ./
+      ignore: 
+      - "**/*"
 
     # openapi.yaml to root
     - from: ../../api/common
