@@ -1,8 +1,12 @@
+locals {
+  tags             = { azd-env-name : var.name }
+  api_command_line = "gunicorn --workers 4 --threads 2 --timeout 60 --access-logfile \"-\" --error-logfile \"-\" --bind=0.0.0.0:8000 -k uvicorn.workers.UvicornWorker todo.app:app"
+}
 # ------------------------------------------------------------------------------------------------------
 # Deploy resource Group
 # ------------------------------------------------------------------------------------------------------
 resource "azurecaf_name" "rg_name" {
-  name          = var.env_name
+  name          = var.name
   resource_type = "azurerm_resource_group"
   random_length = 0
   clean_input   = true
@@ -11,7 +15,7 @@ resource "azurerm_resource_group" "rg" {
   name     = azurecaf_name.rg_name.result
   location = var.location
 
-  tags = { azd-env-name : var.env_name }
+  tags = local.tags
 }
 
 resource "random_string" "resource_token" {
@@ -26,9 +30,9 @@ module "applicationinsights" {
   source         = "../../../../../common/infra/terraform/"
   location       = var.location
   rg_name        = azurerm_resource_group.rg.name
-  env_name       = var.env_name
+  env_name       = var.name
   workspace_id   = azurerm_log_analytics_workspace.workspace.id
-  tags           = { azd-env-name : var.env_name }
+  tags           = azurerm_resource_group.rg.tags
   resource_token = random_string.resource_token.result
 
 }
@@ -38,7 +42,7 @@ module "applicationinsights" {
 # ------------------------------------------------------------------------------------------------------
 
 resource "azurecaf_name" "kv_name" {
-  name          = "vv${random_string.resource_token.result}" #revert me
+  name          = random_string.resource_token.result #revert me
   resource_type = "azurerm_key_vault"
   random_length = 0
   clean_input   = true
@@ -52,7 +56,7 @@ resource "azurerm_key_vault" "kv" {
   purge_protection_enabled = false
   sku_name                 = "standard"
 
-  tags = { azd-env-name : var.env_name }
+  tags = local.tags
 }
 
 resource "azurerm_key_vault_access_policy" "app" {
@@ -69,15 +73,17 @@ resource "azurerm_key_vault_access_policy" "app" {
 }
 
 resource "azurerm_key_vault_access_policy" "user" {
+  count        = var.principalId == "" ? 0 : 1
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
-  object_id    = data.azurerm_client_config.current.object_id
+  object_id    = var.principalId
 
   secret_permissions = [
     "Get",
     "Set",
     "List",
     "Delete",
+
   ]
 }
 
@@ -103,7 +109,7 @@ resource "azurerm_service_plan" "plan" {
   os_type             = "Linux"
   sku_name            = "B1"
 
-  tags = { azd-env-name : var.env_name }
+  tags = local.tags
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -121,7 +127,7 @@ resource "azurerm_linux_web_app" "web" {
   resource_group_name = azurerm_resource_group.rg.name
   service_plan_id     = azurerm_service_plan.plan.id
   https_only          = true
-  tags                = { azd-env-name : var.env_name, azd-service-name : "web" }
+  tags                = merge(local.tags, { azd-service-name : "web" })
 
   site_config {
     #linux_fx_version = "NODE|16-lts"
@@ -162,9 +168,6 @@ resource "azurecaf_name" "appi_name" {
   clean_input   = true
 }
 
-locals {
-  api_command_line = "gunicorn --workers 4 --threads 2 --timeout 60 --access-logfile \"-\" --error-logfile \"-\" --bind=0.0.0.0:8000 -k uvicorn.workers.UvicornWorker todo.app:app"
-}
 
 resource "azurerm_linux_web_app" "api" {
   name                = azurecaf_name.appi_name.result
@@ -172,7 +175,7 @@ resource "azurerm_linux_web_app" "api" {
   resource_group_name = azurerm_resource_group.rg.name
   service_plan_id     = azurerm_service_plan.plan.id
   https_only          = true
-  tags                = { azd-env-name : var.env_name, "azd-service-name" : "api" }
+  tags                = merge(local.tags, { "azd-service-name" : "api" })
 
   site_config {
     #linux_fx_version = "PYTHON|3.8"
@@ -223,6 +226,7 @@ resource "azurerm_log_analytics_workspace" "workspace" {
   resource_group_name = azurerm_resource_group.rg.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
+  tags                = local.tags
 }
 
 # ------------------------------------------------------------------------------------------------------
@@ -245,7 +249,7 @@ resource "azurerm_cosmosdb_account" "db" {
   enable_multiple_write_locations = false
   mongo_server_version            = "4.0"
 
-  tags = { azd-env-name : var.env_name }
+  tags = local.tags
 
 
   capabilities {
