@@ -9,9 +9,9 @@ repo:
 
   remotes:
     - name: azure-samples-main
-      url: git@github.com:Azure-Samples/todo-csharp-mongo.git
+      url: git@github.com:kaizentm/todo-csharp-mongo.git
     - name: azure-samples-staging
-      url: git@github.com:Azure-Samples/todo-csharp-mongo.git
+      url: git@github.com:kaizentm/todo-csharp-mongo.git
       branch: staging
   
   rewrite:
