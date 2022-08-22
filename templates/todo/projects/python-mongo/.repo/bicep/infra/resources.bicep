@@ -3,7 +3,7 @@ param principalId string = ''
 param resourceToken string
 param tags object
 
-var abbrs = loadJsonContent('../../../../common/infra/abbreviations.json')
+var abbrs = loadJsonContent('../../../../../../common/infra/bicep/abbreviations.json')
 
 resource web 'Microsoft.Web/sites@2021-03-01' = {
   name: '${abbrs.webSitesAppService}web-${resourceToken}'
@@ -63,8 +63,9 @@ resource api 'Microsoft.Web/sites@2021-03-01' = {
     serverFarmId: appServicePlan.id
     siteConfig: {
       alwaysOn: true
-      linuxFxVersion: 'NODE|16-lts'
+      linuxFxVersion: 'PYTHON|3.8'
       ftpsState: 'FtpsOnly'
+      appCommandLine: 'gunicorn --workers 4 --threads 2 --timeout 60 --access-logfile "-" --error-logfile "-" --bind=0.0.0.0:8000 -k uvicorn.workers.UvicornWorker todo.app:app'
     }
     httpsOnly: true
   }
@@ -179,7 +180,7 @@ resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-03
   })
 }
 
-module applicationInsightsResources '../../../../common/infra/applicationinsights.bicep' = {
+module applicationInsightsResources '../../../../../../common/infra/bicep/applicationinsights.bicep' = {
   name: 'applicationinsights-resources'
   params: {
     resourceToken: resourceToken

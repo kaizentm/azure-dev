@@ -1,12 +1,7 @@
 trigger:
   branches:
     include:
-      - cse_main
-  paths:
-    include:
-      - generators/
-      - templates/
-      - eng/pipelines/repoman.yml
+      - hadwa_cse_main
 
 pr:
   paths:
