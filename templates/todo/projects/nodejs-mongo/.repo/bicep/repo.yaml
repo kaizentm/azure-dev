@@ -44,8 +44,6 @@ repo:
         - ".repo/**/*"
         - "repo.y[a]ml"
         - "azure.y[a]ml"
-        - "repo.y[a]ml"
-        - "azure.y[a]ml"
 
     # openapi.yaml to root
     - from: ../../../../api/common
