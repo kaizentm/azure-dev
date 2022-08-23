@@ -27,6 +27,17 @@ repo:
       ignore: 
         - ".repo/**/*"
 
+    - from: ../../api/js
+      to: ./src/api
+      ignore: 
+        - ".repo/**/*"
+        
+    - from: ../../web/react-fluent
+      to: ./src/web
+      ignore: 
+        - ".repo/**/*"
+    # End Path Rewrite Rules
+
     - from: ./../../
       to: ./
       ignore: 
