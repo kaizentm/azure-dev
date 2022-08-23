@@ -6,7 +6,7 @@ trigger:
       - eng/pipelines/repoman.yml
   branches: 
     include:
-      - main
+      - terramform_demo_main
 
 pr:
   paths:
@@ -37,7 +37,7 @@ stages:
           )
         pool:
           name: azsdk-pool-mms-ubuntu-2004-general
-          vmImage: MMSUbuntu20.04
+          #vmImage: MMSUbuntu20.04
 
         steps:
           - checkout: self
@@ -82,7 +82,7 @@ stages:
               targetType: filePath
               filePath: ./eng/scripts/Update-PRComment.ps1
               arguments: >-
-                -Repo 'azure/azure-dev'
+                -Repo 'kaizentm/azure-dev'
                 -PRNumber '$(PRNumber)'
                 -BodyFile '$(CommentBodyFile)'
                 -Tag '<!-- #comment-repoman-generate -->'
@@ -103,7 +103,7 @@ stages:
           )
         pool:
           name: azsdk-pool-mms-ubuntu-2004-general
-          vmImage: MMSUbuntu20.04
+          #vmImage: MMSUbuntu20.04
 
         steps:
           - checkout: self
@@ -139,7 +139,7 @@ stages:
       environment: azure-dev
       pool:
         name: azsdk-pool-mms-ubuntu-2004-general
-        vmImage: MMSUbuntu20.04
+        #vmImage: MMSUbuntu20.04
 
       strategy:
         runOnce:
