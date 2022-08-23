@@ -6,7 +6,7 @@ trigger:
       - eng/pipelines/repoman.yml
   branches: 
     include:
-      - terramform_demo_main
+      - terraform_demo_main
 
 pr:
   paths:
