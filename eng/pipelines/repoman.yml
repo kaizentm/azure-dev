@@ -6,7 +6,7 @@ trigger:
       - eng/pipelines/repoman.yml
   branches: 
     include:
-      - terrafrom_upstream_sync_feature
+      - terrafrom_upstream_sync_main
 
 pr:
   paths:
