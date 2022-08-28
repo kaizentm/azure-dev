@@ -1,0 +1,43 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Repoman Generate - Python Mongo tf",
+            "program": "${workspaceFolder}/generators/repo/src/index.ts",
+            "preLaunchTask": "tsc: build",
+            "outFiles": ["${workspaceFolder}/generators/repo/dist/**/*.js"],   
+            "args" : [
+                "generate",
+                "-t", "repo.yaml",
+                "-s", "${workspaceFolder}/templates/todo/projects/python-mongo/.repo/terraform",
+                "-o", "${workspaceFolder}/.output/python-mongo-tf",
+                "--branch", "pr-debug-test",
+                "--https",
+                "--fail-on-update-error"
+            ]   
+          },
+          {
+            "type": "node",
+            "request": "launch",
+            "name": "Repoman Generate - Nodejs Mongo",
+            "program": "${workspaceFolder}/generators/repo/src/index.ts",
+            "preLaunchTask": "tsc: build",
+            "outFiles": ["${workspaceFolder}/generators/repo/dist/**/*.js"],   
+            "args" : [
+                "generate",
+                "-t", "repo.yaml",
+                "-s", "${workspaceFolder}/templates/todo/projects/nodejs-mongo/.repo/bicep",
+                "-o", "${workspaceFolder}/.output/nodejs-mongo",
+                "--branch", "staging",
+                "--https",
+                "--fail-on-update-error",
+                "--update"
+            ]   
+          }
+    ]
+}
