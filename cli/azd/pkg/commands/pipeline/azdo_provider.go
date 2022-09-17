@@ -222,7 +222,11 @@ func (p *AzdoHubScmProvider) getAzdoConnection(ctx context.Context) (*azuredevop
 		return nil, err
 	}
 
-	connection := azdo.GetAzdoConnection(ctx, org, pat)
+	connection, err := azdo.GetAzdoConnection(ctx, org, pat)
+	if err != nil {
+		return nil, err
+	}
+
 	return connection, nil
 }
 
@@ -575,8 +579,10 @@ func (p *AzdoCiProvider) configureConnection(
 	if err != nil {
 		return err
 	}
-	connection := azdo.GetAzdoConnection(ctx, org, pat)
-
+	connection, err := azdo.GetAzdoConnection(ctx, org, pat)
+	if err != nil {
+		return err
+	}
 	err = azdo.CreateServiceConnection(ctx, connection, details.projectId, *p.Env, *p.credentials, console)
 	if err != nil {
 		return err
@@ -607,8 +613,10 @@ func (p *AzdoCiProvider) configurePipeline(ctx context.Context, repoDetails *git
 	if err != nil {
 		return err
 	}
-	connection := azdo.GetAzdoConnection(ctx, org, pat)
-
+	connection, err := azdo.GetAzdoConnection(ctx, org, pat)
+	if err != nil {
+		return err
+	}
 	buildDefinition, err := azdo.CreatePipeline(ctx, details.projectId, azdo.AzurePipelineName, details.repoName, connection, *p.credentials, *p.Env)
 	if err != nil {
 		return err

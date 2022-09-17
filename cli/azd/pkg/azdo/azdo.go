@@ -33,8 +33,17 @@ type AzureServicePrincipalCredentials struct {
 }
 
 // helper method to return an Azure DevOps connection used the AzDo go sdk
-func GetAzdoConnection(ctx context.Context, organization string, personalAccessToken string) *azuredevops.Connection {
+func GetAzdoConnection(ctx context.Context, organization string, personalAccessToken string) (*azuredevops.Connection, error) {
+	if organization == "" {
+		return nil, fmt.Errorf("organization name is required")
+	}
+
+	if personalAccessToken == "" {
+		return nil, fmt.Errorf("personal access token is required")
+	}
+
 	organizationUrl := fmt.Sprintf("https://%s/%s", AzDoHostName, organization)
 	connection := azuredevops.NewPatConnection(organizationUrl, personalAccessToken)
-	return connection
+
+	return connection, nil
 }
