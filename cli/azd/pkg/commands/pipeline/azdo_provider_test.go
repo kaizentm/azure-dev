@@ -6,6 +6,7 @@ package pipeline
 import (
 	"context"
 	"os"
+	"path"
 	"testing"
 
 	"github.com/azure/azure-dev/cli/azd/pkg/azdo"
@@ -112,6 +113,27 @@ func Test_azdo_provider_preConfigureCheck(t *testing.T) {
 
 }
 
+func Test_saveEnvironmentConfig(t *testing.T) {
+	tempDir := t.TempDir()
+
+	t.Run("saves to environment file", func(t *testing.T) {
+		// arrange
+		key := "test"
+		value := "12345"
+		provider := getEmptyAzdoScmProviderTestHarness()
+		envPath := path.Join(tempDir, ".test.env")
+		provider.Env = environment.EmptyWithFile(envPath)
+		// act
+		e := provider.saveEnvironmentConfig(key, value)
+		// assert
+		writtenEnv, err := environment.FromFile(envPath)
+		require.NoError(t, err)
+
+		require.EqualValues(t, writtenEnv.Values[key], value)
+		require.NoError(t, e)
+	})
+
+}
 func getEmptyAzdoScmProviderTestHarness() *AzdoHubScmProvider {
 	return &AzdoHubScmProvider{
 		Env: &environment.Environment{
