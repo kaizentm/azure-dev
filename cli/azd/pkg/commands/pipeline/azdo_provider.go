@@ -137,7 +137,7 @@ func (p *AzdoHubScmProvider) createNewGitRepositoryFromInput(ctx context.Context
 			console.Message(ctx, fmt.Sprintf("error: the repo name '%s' is already in use\n", name))
 			continue // try again
 		} else if strings.Contains(message, "TF401025: 'repoName' is not a valid name for a Git repository.") {
-			console.Message(ctx, fmt.Sprintf("error: '%s' is not a valid Azure Devops repo name. See https://docs.microsoft.com/en-us/azure/devops/organizations/settings/naming-restrictions?view=azure-devops#azure-repos-git\n", name))
+			console.Message(ctx, fmt.Sprintf("error: '%s' is not a valid Azure Devops repo name. See https://aka.ms/azure-dev/azdo-repo-naming\n", name))
 			continue // try again
 		} else if err != nil {
 			return "", fmt.Errorf("creating repository: %w", err)
@@ -453,7 +453,7 @@ func (p *AzdoHubScmProvider) preventGitPush(
 		console.Message(ctx, `  
   A credential helper is not configured for git.
   This will require you to enter your Azure DevOps PAT when executing a git push.
-  https://git-scm.com/docs/git-credential-store
+  https://aka.ms/azure-dev/git-store
   `)
 		idx, err := console.Select(ctx, input.ConsoleOptions{
 			Message: "Would you like to enable credential.helper store for this local git repository?",

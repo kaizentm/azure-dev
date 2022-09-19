@@ -117,7 +117,7 @@ func GetAzdoProjectFromNew(ctx context.Context, repoPath string, connection *azu
 			console.Message(ctx, fmt.Sprintf("error: the project name '%s' is already in use\n", name))
 			continue // try again
 		} else if strings.Contains(message, "The following name is not valid") {
-			console.Message(ctx, fmt.Sprintf("error: the project name '%s' is not a valid Azure DevOps project Name. See https://docs.microsoft.com/en-us/azure/devops/organizations/settings/naming-restrictions?view=azure-devops#project-names\n", name))
+			console.Message(ctx, fmt.Sprintf("error: the project name '%s' is not a valid Azure DevOps project Name. See https://aka.ms/azure-dev/azdo-project-naming\n", name))
 			continue // try again
 		} else if err != nil {
 			return "", "", fmt.Errorf("creating project: %w", err)
