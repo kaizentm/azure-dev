@@ -5,6 +5,7 @@ package pipeline
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/azure/azure-dev/cli/azd/pkg/azdo"
@@ -72,6 +73,51 @@ func Test_azdo_provider_getRepoDetails(t *testing.T) {
 		require.Error(t, e, ErrRemoteHostIsNotAzDo)
 		require.EqualValues(t, (*gitRepositoryDetails)(nil), details)
 	})
+}
+
+func Test_azdo_provider_preConfigureCheck(t *testing.T) {
+	t.Run("accepts a PAT via system environment variables", func(t *testing.T) {
+		// arrange
+		testPat := "12345"
+		provider := getEmptyAzdoScmProviderTestHarness()
+		os.Setenv(azdo.AzDoEnvironmentOrgName, "testOrg")
+		os.Setenv(azdo.AzDoPatName, testPat)
+		testConsole := &circularConsole{}
+		ctx := context.Background()
+
+		// act
+		e := provider.preConfigureCheck(ctx, testConsole)
+
+		// assert
+		require.NoError(t, e)
+
+		//cleanup
+		os.Unsetenv(azdo.AzDoPatName)
+	})
+
+	t.Run("returns an error if no pat is provided", func(t *testing.T) {
+		// arrange
+		os.Unsetenv(azdo.AzDoPatName)
+		os.Setenv(azdo.AzDoEnvironmentOrgName, "testOrg")
+		provider := getEmptyAzdoScmProviderTestHarness()
+		testConsole := &circularConsole{}
+		ctx := context.Background()
+
+		// act
+		e := provider.preConfigureCheck(ctx, testConsole)
+
+		// assert
+		require.Error(t, e)
+	})
+
+}
+
+func getEmptyAzdoScmProviderTestHarness() *AzdoHubScmProvider {
+	return &AzdoHubScmProvider{
+		Env: &environment.Environment{
+			Values: map[string]string{},
+		},
+	}
 }
 
 func getAzdoScmProviderTestHarness() *AzdoHubScmProvider {
